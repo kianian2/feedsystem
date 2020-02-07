@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import fsolve,root
+# from scipy.optimize import fsolve,root
 
 psi_2_pascal = 6894.757
 in_2_meter = 0.0254
