@@ -1,4 +1,5 @@
 import numpy as np
+from math import pi, sqrt, cos, sin
 # from scipy.optimize import fsolve,root
 
 psi_2_pascal = 6894.757
@@ -27,15 +28,15 @@ Dpintle = Dchamber/3.3*in_2_meter
 
 Cd = 0.6 #assume more resistance
 
-Ap = mdot_lox/(Cd*np.sqrt(2*rho_LOX*dp_pintle))
+Ap = mdot_lox/(Cd*sqrt(2*rho_LOX*dp_pintle))
 
-Aan = mdot_meth/(Cd*np.sqrt(2*rho_meth*dp_an))
+Aan = mdot_meth/(Cd*sqrt(2*rho_meth*dp_an))
 
-Apint = (np.pi/4)*Dpintle**2
+Apint = (pi/4)*Dpintle**2
 
-gap_t = np.sqrt((4/np.pi)*(Aan+Apint))-Dpintle
+gap_t = np.sqrt((4/pi)*(Aan+Apint))-Dpintle
 
-gap_t_p = Ap/(Dpintle*np.pi)
+gap_t_p = Ap/(Dpintle*pi)
 
 
 #=========================================
@@ -48,7 +49,7 @@ Nholes = 40
 # intv = np.vectorize(int)
 
 def get_pdrop(A):
-    one = mdot_lox/(Cd*A*np.sqrt(2*rho_LOX))
+    one = mdot_lox/(Cd*A*sqrt(2*rho_LOX))
     return one**2
 
 # def dp_ox(c):
@@ -64,6 +65,6 @@ def prat(theta):
     Umeth = mdot_meth/(rho_meth*Aan)
     plox = rho_LOX*Ulox
     pmeth = rho_meth*Umeth
-    return 1 - (plox*np.cos(theta))/(pmeth + np.sin(theta)*plox)
+    return 1 - (plox*cos(theta))/(pmeth + sin(theta)*plox)
     
     

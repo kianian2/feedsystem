@@ -5,7 +5,7 @@
 # 3) HEAD LOSSES DUE TO MAJOR AND MINOR LOSSES (DROPS ACROSS VALVES)
 
 from math import pi
-from injector_real import *
+from injector3 import *
 
 
 
