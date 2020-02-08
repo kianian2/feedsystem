@@ -1,18 +1,19 @@
-## RPL @ UCSB FEED SYSTEM
+'''
+RPL @ UCSB FEED SYSTEM
 
-# DEVELOP A PROGRAM TO DETERMINE TANK PRESSURES AS A FUNCTION OF
-# 1) DISTANCE FROM ENGINE AND 2) HEIGHT DIFFERENCE (CAN CHANGE)
-# 3) HEAD LOSSES DUE TO MAJOR AND MINOR LOSSES (DROPS ACROSS VALVES)
+Determine the worst case pressures across the injector
+which occur at startup
+
+author: Nolan McCarthy
+signed off by: 
+date: 02/08/20
+'''
 
 from math import pi
 from TankPres import *
 from injector3 import *
 
-in2m = 0.0254  # inches to meters
-ft2m = 0.3048  # feet to meters
-psi2pa = 6894.76  # psi to Pa
-
-Pi = 0*psi2pa #no chamber pressure
+Pi = 0 # zero chamber pressure, guage (psi)
 
 loss_Ox = PT_Ox - grav_loss_Ox - Pi/psi2pa
 

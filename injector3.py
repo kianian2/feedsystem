@@ -1,4 +1,4 @@
-import numpy as np
+#import numpy as np
 from math import pi, sqrt, cos, sin
 # from scipy.optimize import fsolve,root
 
@@ -26,15 +26,16 @@ Dchamber = 3.053
 
 Dpintle = Dchamber/3.3*in_2_meter
 
-Cd = 0.6 #assume more resistance
+Cd_meth = 0.6 #assume more resistance
+Cd_ox   = 0.6
 
-Ap = mdot_lox/(Cd*sqrt(2*rho_LOX*dp_pintle))
+Ap = mdot_lox/(Cd_ox*sqrt(2*rho_LOX*dp_pintle))
 
-Aan = mdot_meth/(Cd*sqrt(2*rho_meth*dp_an))
+Aan = mdot_meth/(Cd_meth*sqrt(2*rho_meth*dp_an))
 
 Apint = (pi/4)*Dpintle**2
 
-gap_t = np.sqrt((4/pi)*(Aan+Apint))-Dpintle
+gap_t = sqrt((4/pi)*(Aan+Apint))-Dpintle
 
 gap_t_p = Ap/(Dpintle*pi)
 
@@ -43,22 +44,6 @@ gap_t_p = Ap/(Dpintle*pi)
 
 Ap_in = Ap/(in_2_meter**2)
 Dpintle_in = Dpintle/in_2_meter
-
-Nholes = 40
-
-# intv = np.vectorize(int)
-
-def get_pdrop(A):
-    one = mdot_lox/(Cd*A*sqrt(2*rho_LOX))
-    return one**2
-
-# def dp_ox(c):
-#     d1 = c/64
-#     d2 = (np.pi*Dpintle_in)/Nholes - d1
-#     d2 = intv(d2*64)/64
-#     area_eq = Ap_in - Nholes*(d1**2 + d2**2)*(np.pi/4)
-#     return area_eq
-
 
 def prat(theta):
     Ulox = mdot_lox/(rho_LOX*Ap)

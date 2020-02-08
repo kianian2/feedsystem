@@ -1,8 +1,14 @@
-## RPL @ UCSB FEED SYSTEM
+'''
+RPL @ UCSB FEED SYSTEM
 
-# DEVELOP A PROGRAM TO DETERMINE TANK PRESSURES AS A FUNCTION OF
-# 1) DISTANCE FROM ENGINE AND 2) HEIGHT DIFFERENCE (CAN CHANGE)
-# 3) HEAD LOSSES DUE TO MAJOR AND MINOR LOSSES (DROPS ACROSS VALVES)
+DEVELOP A PROGRAM TO DETERMINE TANK PRESSURES AS A FUNCTION OF
+1) DISTANCE FROM ENGINE AND 2) HEIGHT DIFFERENCE (CAN CHANGE)
+3) HEAD LOSSES DUE TO MAJOR AND MINOR LOSSES (DROPS ACROSS VALVES)
+
+authors: Mitchell Aslo, Nolan McCarthy
+signed off by: Nolan McCarthy
+date: 02/08/20
+'''
 
 from math import pi
 from injector3 import *
@@ -91,8 +97,6 @@ K = no*Ko+ne*Ke+nEb*KEb+n90*K90+n45*K45+nTL*KTL+nTB*KTB+Kb+nFt*KFt+Kc#+K_pint+ K
 pg_hm_Ox  = KE_Ox *(K+K_pint)/psi2pa    # minor losses due to valves, bends, and fittings [psi]
 pg_hm_CH4 = KE_CH4*(K+K_an)/psi2pa    # minor losses due to valves, bends, and fittings [psi]
 
-# pg_hm_Ox = pg_hm_Ox + dPoxinj
-# pg_hm_CH4 = pg_hm_CH4 + dPch4inj
 PT_Ox  = Pi/psi2pa+ grav_loss_Ox+ pg_hm_Ox+ pg_hf_Ox # Oxidizer Tank Pressure [psi]
 PT_CH4 = Pi/psi2pa+grav_loss_CH4+pg_hm_CH4+pg_hf_CH4  # CH4 Tank Pressure [psi]
 
@@ -108,9 +112,9 @@ print('Grav  Losses  = ',float(grav_loss_CH4),' psi')
 print('Minor Losses  = ',float(pg_hm_CH4),' psi') 
 print('Major Losses  = ',float(pg_hf_CH4),' psi') 
 print('Tank Pressure = ',float(PT_CH4),' psi') 
-print('KE_Ox',KE_Ox)
-print('KE_CH4',KE_CH4)
-print('dPoxinj',KE_Ox*K_pint/psi2pa)
-print('dPch4inj',KE_CH4*K_an/psi2pa)
+#print('KE_Ox',KE_Ox)
+#print('KE_CH4',KE_CH4)
+#print('dPoxinj',KE_Ox*K_pint/psi2pa)
+#print('dPch4inj',KE_CH4*K_an/psi2pa)
 # return PT_Ox,PT_CH4
 ##print('Tank Pressure = ',float(PT_CH4),' psi') 
