@@ -17,16 +17,16 @@ m3s2ft3min = 2118.88;   # m**3/s to ft**3/min
 p_LOx = 1104;           # density Ox Based on Pt = 725 psia and T = 100K [kg/m3]
 p_CH4 = 442.5;         # density CH4 Based on Pt = 725 psia and T = 100K [kg/m3]
 g = 9.81;              # magnitude of acceleration due to gravity term [m/s**2] 
-pg_LOx = p_Ox*g;        # oxygen density times gravity [Pa/s**2]
+pg_LOx = p_LOx*g;        # oxygen density times gravity [Pa/s**2]
 pg_CH4 = p_CH4*g;      # CH4 density times gravity [Pa/s**2]
-MR = 2.8;              # CH4:Ox mixture ratio
+MR = 2.8;              # (CH4:Ox) WRONG! mixture ratio
 mdot_tot = 1.22;       # Total mass flow rate [kg/s]
 
 D_t = (0.5-0.035*2)*in2m;   # Inner Diameter of tube [in] to [m]
 A_t = pi*(D_t**2)/4;         # Inner Area of tube [m2]
 D_h = .5*in2m;              # Inner Diameter of hose [in] to [m]
 A_h = pi*(D_h**2)/4;        # Inner Area of hose [m2]
-Pi = 420*psi2pa;            # Pressure at injector inlet [Pa]
+Pi = 350*psi2pa;            # Chamber Pressure [Pa]
 
 mdot_LOx = mdot_tot * MR/(MR+1);             # mass flow rate of LOx [kg/s]
 Q_LOx = mdot_LOx/p_LOx;                        # Flow Rate [m3/s]
@@ -99,15 +99,15 @@ Cd_CH4 = 0.6        # Meth reservoir discharge coeff
 K_CH4=1/(Cd_CH4**2) # Meth reservoir 
 Cd_CH4 = 0.6        # Meth reservoir discharge coeff
 Cd_Ox = 0.6       # Ox annulus discharge coeff 
-K_pint = (A/(Ap*Cd_Ox))**2
-K_an = (A/(Aan*Cd_CH4))**2
+K_pint = (A_t/(Ap*Cd_Ox))**2
+K_an = (A_t/(Aan*Cd_CH4))**2
 
 
 K = no*Ko+ne*Ke+nEb*KEb+n90*K90+n45*K45+nTL*KTL+nTB*KTB+Kb+nFt*KFt+Kc;   # minor losses coefficient
 K_tube = K-KFt;
 K_hose = KFt;
-pg_hm_LOx = (KE_LOx_tube*K_tube+KE_LOx_hose*K_hose)/psi2pa;   # minor losses due to valves, bends, and fittings [psi]
-pg_hm_CH4 = (KE_CH4_tube*K_tube+KE_CH4_tube*K_hose)/psi2pa;   # minor losses due to valves, bends, and fittings [psi]
+pg_hm_LOx = (KE_LOx_tube*(K_tube+K_pint)+KE_LOx_hose*K_hose)/psi2pa;   # minor losses due to valves, bends, and fittings [psi]
+pg_hm_CH4 = (KE_CH4_tube*(K_tube+K_an)+KE_CH4_tube*K_hose)/psi2pa;   # minor losses due to valves, bends, and fittings [psi]
 
 PT_LOx = Pi/psi2pa+grav_loss_LOx+pg_hm_LOx+pg_hf_LOx+pg_dv_LOx; # Oxidizer Tank Pressure [psi]
 PT_CH4 = Pi/psi2pa+grav_loss_CH4+pg_hm_CH4+pg_hf_CH4+pg_dv_CH4; # CH4 Tank Pressure [psi]
@@ -138,13 +138,13 @@ A_t = pi/4*(D_t**2);             # Tank cross-sectional area [m2]
 D_Tube = (.25-2*0.049)*in2m;    # Tube inner diameter [m]
 A_Tube = pi/4*(D_Tube**2);      # Tube area [m2]
 
-Q_He_Ox = Q_Ox;                 # Volumetric flow of Helium in tank [m3/s]
+Q_He_Ox = Q_LOx;                 # Volumetric flow of Helium in tank [m3/s]
 v_He_Ox = Q_He_Ox/A_t;          # Helium plane velocity [m/s]
 
 P_0 = 1314.7*psi2pa;            # Helium Pressure in Tank [Pa]
 T_0 = 310;                      # Helium Temperature in tank at desert [K]
 
-P_T_Ox = PT_Ox*psi2pa;          # Required Prop Tank Pressure [Pa]
+P_T_LOx = PT_LOx*psi2pa;          # Required Prop Tank Pressure [Pa]
 
 p_He_Tank = P_0/R_He/T_0/Z_0;   # Density of Helium leaving tank [kg/m3]
 
