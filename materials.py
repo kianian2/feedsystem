@@ -17,7 +17,6 @@ def get_prop(fs,id):
         Ttot = np.append(Ttot,T)
         Ptot = np.append(Ptot,P)
         proptot = np.append(proptot,prop)
-    #fprop = interpolate.interp2d(Ttot, Ptot, proptot, kind='linear')
     return Ttot,Ptot,proptot
 
 def make_table(fs,id):
@@ -27,27 +26,36 @@ def make_table(fs,id):
         Ttot = np.append(Ttot,T)
         Ptot = np.append(Ptot,P)
         proptot = np.append(proptot,prop)
-    #fprop = interpolate.interp2d(Ttot, Ptot, proptot, kind='linear')
     return Ttot,Ptot,proptot
 
 class PropTable:
-    def __init__(self,file):
-        gibtable = np.genfromtxt("test.txt")
-    def get(self,T,P):
-        loc = ((self.P>=500)&(P<510))&((T>=120)&(T<121))
+    keys = {'T':0,'P':1,'rho':2,'specvol':3,'U':4,
+    'h':5,'s':6,'Cv':7,'Cp':8,'c':9,'JT':10,'mu':11,'k':12,
+    'phase':13}
+    def __init__(self,f,P1,P2,Pstep,T1,T2,Tstep):
+        self.bigtable = np.genfromtxt(f)
+        self.P = self.bigtable[:,1]
+        self.T = self.bigtable[:,0]
+        self.P1 = P1; self.P2 = P2; self.Pstep = Pstep
+        self.T1 = T1; self.T2 = T2; self.Tstep = Tstep
+    def get(self,T,P,prop):
+        id = self.keys[prop]
+        loc = ((self.P>=P)&(self.P<(P+self.Pstep)))&\
+            ((self.T>=T)&(self.T<(T+self.Tstep)))
+        prop = self.bigtable[:,id]
+        return prop[loc][0]
 
 
 class Material:
     def reynolds(self,v,L):
         return self.density*v*L/self.visc
     def get_density(self):
-        return self.fdens(self.T,self.P)[0]
+        return self.ptable.get(self.T,self.P,'rho')
     def get_viscosity(self):
-        return self.fvisc(self.T,self.P)[0]
+        return self.ptable.get(self.T,self.P,'mu')
 
 class Methane(Material):
-    #fdens = get_prop(glob.glob("./C74828/*"),2)
-    #fvisc = get_prop(glob.glob("./C74828/*"),11)
+    ptable = PropTable("ch4.txt",10,750,10,0,300,1)
     def __init__(self,P,T):
         self.P = P
         self.T = T

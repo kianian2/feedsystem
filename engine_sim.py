@@ -7,7 +7,7 @@ Created on Thu Feb 13 20:18:53 2020
 
 from feed import *
 
-MR = 2.8;               # (CH4:Ox) WRONG! mixture ratio
+MR = 2.8;               # (Ox:CH4) mixture ratio
 mdot_tot = 1.22; 
 mdot_LOx = mdot_tot * MR/(MR+1);                # mass flow rate of LOx [kg/s]
 mdot_CH4 = mdot_tot * 1/(MR+1);  
