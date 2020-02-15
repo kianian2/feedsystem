@@ -5,28 +5,28 @@ import glob
 import requests
     
 
-def get_prop(fs,id):
-    Ttot = []
-    Ptot = []
-    proptot = []
-    for f in fs:
-        table = np.genfromtxt(f, delimiter='\t')
-        T = table[:,0][1:]
-        P = table[:,1][1:]
-        prop = table[:,id][1:]
-        Ttot = np.append(Ttot,T)
-        Ptot = np.append(Ptot,P)
-        proptot = np.append(proptot,prop)
-    return Ttot,Ptot,proptot
+# def get_prop(fs,id):
+#     Ttot = []
+#     Ptot = []
+#     proptot = []
+#     for f in fs:
+#         table = np.genfromtxt(f, delimiter='\t')
+#         T = table[:,0][1:]
+#         P = table[:,1][1:]
+#         prop = table[:,id][1:]
+#         Ttot = np.append(Ttot,T)
+#         Ptot = np.append(Ptot,P)
+#         proptot = np.append(proptot,prop)
+#     return Ttot,Ptot,proptot
 
-def make_table(fs,id):
-    for f in fs:
-        table = np.genfromtxt(f, delimiter='\t')
-        prop = table[:,id][1:]
-        Ttot = np.append(Ttot,T)
-        Ptot = np.append(Ptot,P)
-        proptot = np.append(proptot,prop)
-    return Ttot,Ptot,proptot
+# def make_table(fs,id):
+#     for f in fs:
+#         table = np.genfromtxt(f, delimiter='\t')
+#         prop = table[:,id][1:]
+#         Ttot = np.append(Ttot,T)
+#         Ptot = np.append(Ptot,P)
+#         proptot = np.append(proptot,prop)
+#     return Ttot,Ptot,proptot
 
 class PropTable:
     keys = {'T':0,'P':1,'rho':2,'specvol':3,'U':4,
@@ -53,14 +53,17 @@ class Material:
         return self.ptable.get(self.T,self.P,'rho')
     def get_viscosity(self):
         return self.ptable.get(self.T,self.P,'mu')
+    def set_temp(self,newT):
+        self.T = newT
+    def set_pressure(self,newP):
+        self.P = newP
 
 class Methane(Material):
-    ptable = PropTable("ch4.csv",10,750,10,0,300,1)
+    ptable = PropTable("ch4.csv",10,750,10,0,400,1)
     def __init__(self,P,T):
+        '''Pressure (psig), Temperature (K)'''
         self.P = P
         self.T = T
-        self.density = self.get_density()
-        self.visc = self.get_viscosity()
 
 
     

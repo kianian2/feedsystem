@@ -15,6 +15,22 @@ ft2m = 0.3048;          # feet to meters
 psi2pa = 6894.76;       # psi to Pa
 m3s2ft3min = 2118.88;   # m**3/s to ft**3/min
 
+
+def get_friction_factor(Re,Rg):
+    '''get friction factor
+    Inputs:
+        Re: Reynolds number of fluid
+        Rg: e/D realative roughness of pipe
+    Returns:
+        f: friction factor
+    '''
+    assert Re > 0
+    if Re < 4000: #laminar
+        return 64/Re 
+    if Re >= 4000: #turbulent
+        return 0.0055*(1+(2e4*Rg + (10**6)/Re)**(1/3)) 
+    
+
 def get_PT(m_dot,rho,visc,L_tube,L_hose,K_tube,K_hose):
     '''
     Get's required tank pressure
@@ -63,9 +79,11 @@ def get_PT(m_dot,rho,visc,L_tube,L_hose,K_tube,K_hose):
     Rg_tube = e/D_t;                            # Relative Roughness tube
     Rg_hose = e/D_h;
     
-    f_tube = 0.0055*(1+(2e4*Rg_tube + (10**6)/Re_tube)**(1/3));
-    f_hose = 0.0055*(1+(2e4*Rg_hose + (10**6)/Re_hose)**(1/3));
-    
+    #f_tube = 0.0055*(1+(2e4*Rg_tube + (10**6)/Re_tube)**(1/3));
+    #f_hose = 0.0055*(1+(2e4*Rg_hose + (10**6)/Re_hose)**(1/3));
+    f_tube = get_friction_factor(Re_tube,Rg_tube)
+    f_hose = get_friction_factor(Re_hose,Rg_hose)
+
     pg_hf = (KE_tube*f_tube*L_tube/D_t + KE_hose*f_hose*L_hose/D_h)/psi2pa;        # friction head losses oxygen [psi]
    
     pg_hm = (KE_tube*(K_tube)+KE_hose*K_hose)/psi2pa;   # minor losses due to valves, bends, and fittings [psi]
