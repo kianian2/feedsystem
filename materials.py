@@ -53,10 +53,19 @@ class Material:
         return self.ptable.get(self.T,self.P,'rho')
     def get_viscosity(self):
         return self.ptable.get(self.T,self.P,'mu')
+    def get_internal_energy(self):
+        return self.ptable.get(self.T,self.P,'U')/1000
+    def get_enthalpy(self):
+        return self.ptable.get(self.T,self.P,'h')/1000
+    def get_entropy(self):
+        return self.ptable.get(self.T,self.P,'h')*1000
+    def get_Cv(self):
+        return self.ptable.get(self.T,self.P,'h')*1000
     def set_temp(self,newT):
         self.T = newT
     def set_pressure(self,newP):
         self.P = newP
+
 
 class Methane(Material):
     ptable = PropTable("ch4.csv",10,750,10,0,400,1)
@@ -64,6 +73,12 @@ class Methane(Material):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
         self.T = T
-
+ 
+class Methane(Material):
+    ptable = PropTable("He.csv",5,1300,5,80,500,1)
+    def __init__(self,P,T):
+        '''Pressure (psig), Temperature (K)'''
+        self.P = P
+        self.T = T
 
     
