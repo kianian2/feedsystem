@@ -55,7 +55,7 @@ class Material:
         return self.ptable.get(self.T,self.P,'mu')
 
 class Methane(Material):
-    ptable = PropTable("ch4.txt",10,750,10,0,300,1)
+    ptable = PropTable("ch4.csv",10,750,10,0,300,1)
     def __init__(self,P,T):
         self.P = P
         self.T = T
