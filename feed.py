@@ -67,7 +67,6 @@ def get_PT(m_dot,rho,visc,L_tube,L_hose,K_tube,K_hose):
     f_hose = 0.0055*(1+(2e4*Rg_hose + (10**6)/Re_hose)**(1/3));
     
     pg_hf = (KE_tube*f_tube*L_tube/D_t + KE_hose*f_hose*L_hose/D_h)/psi2pa;        # friction head losses oxygen [psi]
-    
    
     pg_hm = (KE_tube*(K_tube)+KE_hose*K_hose)/psi2pa;   # minor losses due to valves, bends, and fittings [psi]
     

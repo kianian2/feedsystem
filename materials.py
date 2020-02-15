@@ -20,9 +20,19 @@ def get_prop(fs,id):
     #fprop = interpolate.interp2d(Ttot, Ptot, proptot, kind='linear')
     return Ttot,Ptot,proptot
 
+def make_table(fs,id):
+    for f in fs:
+        table = np.genfromtxt(f, delimiter='\t')
+        prop = table[:,id][1:]
+        Ttot = np.append(Ttot,T)
+        Ptot = np.append(Ptot,P)
+        proptot = np.append(proptot,prop)
+    #fprop = interpolate.interp2d(Ttot, Ptot, proptot, kind='linear')
+    return Ttot,Ptot,proptot
+
 class PropTable:
-    def __init__(self,files,id):
-        self.Ts,self.Ps,self.prop = get_prop(files,id)
+    def __init__(self,file):
+        gibtable = np.genfromtxt("test.txt")
     def get(self,T,P):
         loc = ((self.P>=500)&(P<510))&((T>=120)&(T<121))
 
