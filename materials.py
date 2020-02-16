@@ -3,7 +3,9 @@ import pandas as pd
 from scipy import interpolate
 import glob
 import requests
+import os
     
+DIR = os.path.dirname(os.path.realpath(__file__))
 
 # def get_prop(fs,id):
 #     Ttot = []
@@ -90,14 +92,14 @@ class Material:
 
 
 class Methane(Material):
-    ptable = PropTable("ch4.csv",10,750,10,0,400,1)
+    ptable = PropTable(os.path.join(DIR,"ch4.csv"),10,750,10,0,400,1)
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
         self.T = T
  
 class Helium(Material):
-    ptable = PropTable("He.csv",5,1300,5,80,500,1)
+    ptable = PropTable(os.path.join(DIR,"He.csv"),5,1300,5,80,500,1)
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
