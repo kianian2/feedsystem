@@ -3,30 +3,13 @@ import pandas as pd
 from scipy import interpolate
 import glob
 import requests
-    
 
-# def get_prop(fs,id):
-#     Ttot = []
-#     Ptot = []
-#     proptot = []
-#     for f in fs:
-#         table = np.genfromtxt(f, delimiter='\t')
-#         T = table[:,0][1:]
-#         P = table[:,1][1:]
-#         prop = table[:,id][1:]
-#         Ttot = np.append(Ttot,T)
-#         Ptot = np.append(Ptot,P)
-#         proptot = np.append(proptot,prop)
-#     return Ttot,Ptot,proptot
-
-# def make_table(fs,id):
-#     for f in fs:
-#         table = np.genfromtxt(f, delimiter='\t')
-#         prop = table[:,id][1:]
-#         Ttot = np.append(Ttot,T)
-#         Ptot = np.append(Ptot,P)
-#         proptot = np.append(proptot,prop)
-#     return Ttot,Ptot,proptot
+""" 
+Object oriented program for getting thermophysical properties 
+of different materials ripped from the NIST database
+Author: Nolan McCarthy
+Date: 
+"""
 
 class PropTable:
     keys = {'T':0,'P':1,'rho':2,'specvol':3,'U':4,
@@ -82,6 +65,14 @@ class Material:
 
     def reynolds(self,v,L):
         return self.density*v*L/self.visc
+
+    def prandlt(self):
+        mu = self.get_viscosity()
+        k = self.get_thermal_conductivity()
+        rho = self.get_density()
+        Cp = self.get_Cp()
+        Pr = (mu/rho)/(k/(Cp*rho))
+        return Pr
 
     def set_temp(self,newT):
         self.T = newT
