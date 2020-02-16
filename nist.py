@@ -36,6 +36,6 @@ def make_big_table(CAS,P1,P2,Pstep,T1,T2,Tstep):
     return table
 
 def make_file(fname, CAS,P1,P2,Pstep,T1,T2,Tstep):
-    nist.get_all_data(CAS,P1,P2,Pstep,T1,T2,Tstep)
-    table = nist.make_big_table(CAS,P1,P2,Pstep,T1,T2,Tstep)
+    get_all_data(CAS,P1,P2,Pstep,T1,T2,Tstep)
+    table = make_big_table(CAS,P1,P2,Pstep,T1,T2,Tstep)
     np.savetxt(fname,table)
