@@ -15,6 +15,8 @@ Date:
 """
 
 class PropTable:
+    conv1 = 1e-6
+    conv2 = 1000
     keys = {'T':0,'P':1,'rho':2,'specvol':3,'U':4,
     'h':5,'s':6,'Cv':7,'Cp':8,'c':9,'JT':10,'mu':11,'k':12,
     'phase':13}
@@ -32,6 +34,8 @@ class PropTable:
         return prop[loc][0]
 
 class PropTableTed:
+    conv1 = 1
+    conv2 = 2
     '''I had to write this because Ted Bennet sucks'''
     keys = {'T':0,'k':1,'rho':2,'Cp':3,'Cv':4,'mu':5,'expan':6}
     def __init__(self,file):
@@ -72,17 +76,17 @@ class Material:
     def get_density(self):
         return self.ptable.get(self.T,self.P,'rho')
     def get_viscosity(self):
-        return self.ptable.get(self.T,self.P,'mu')*1e-6
+        return self.ptable.get(self.T,self.P,'mu')*self.ptable.conv1
     def get_internal_energy(self):
-        return self.ptable.get(self.T,self.P,'U')/1000
+        return self.ptable.get(self.T,self.P,'U')/self.ptable.conv2
     def get_enthalpy(self):
-        return self.ptable.get(self.T,self.P,'h')/1000
+        return self.ptable.get(self.T,self.P,'h')/self.ptable.conv2
     def get_entropy(self):
-        return self.ptable.get(self.T,self.P,'h')*1000
+        return self.ptable.get(self.T,self.P,'h')*self.ptable.conv2
     def get_Cv(self):
-        return self.ptable.get(self.T,self.P,'Cv')*1000
+        return self.ptable.get(self.T,self.P,'Cv')*self.ptable.conv2
     def get_Cp(self):
-        return self.ptable.get(self.T,self.P,'Cp')*1000
+        return self.ptable.get(self.T,self.P,'Cp')*self.ptable.conv2
     def get_speed_of_sound(self):
         return self.ptable.get(self.T,self.P,'c')
     def get_thermal_conductivity(self):
@@ -99,7 +103,7 @@ class Material:
             print("error: unrecognized phase")
 
     def reynolds(self,v,L):
-        return self.density*v*L/self.visc
+        return self.get_density()*v*L/self.get_viscosity()
 
     def prandlt(self):
         mu = self.get_viscosity()
