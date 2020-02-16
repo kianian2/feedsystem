@@ -47,12 +47,14 @@ class PropTable:
 
 
 class Material:
-    def reynolds(self,v,L):
-        return self.density*v*L/self.visc
+    def __init__(self,P,T):
+        '''Pressure (psig), Temperature (K)'''
+        self.P = P
+        self.T = T
     def get_density(self):
         return self.ptable.get(self.T,self.P,'rho')
     def get_viscosity(self):
-        return self.ptable.get(self.T,self.P,'mu')
+        return self.ptable.get(self.T,self.P,'mu')*1e-6
     def get_internal_energy(self):
         return self.ptable.get(self.T,self.P,'U')/1000
     def get_enthalpy(self):
@@ -60,7 +62,27 @@ class Material:
     def get_entropy(self):
         return self.ptable.get(self.T,self.P,'h')*1000
     def get_Cv(self):
-        return self.ptable.get(self.T,self.P,'h')*1000
+        return self.ptable.get(self.T,self.P,'Cv')*1000
+    def get_Cp(self):
+        return self.ptable.get(self.T,self.P,'Cp')*1000
+    def get_speed_of_sound(self):
+        return self.ptable.get(self.T,self.P,'c')
+    def get_thermal_conductivity(self):
+        return self.ptable.get(self.T,self.P,'k')
+    def get_phase(self):
+        phase =  self.ptable.get(self.T,self.P,'phase')
+        if phase==0:
+            return "vapor"
+        if phase==1:
+            return "liquid"
+        if phase==3:
+            return "supercritical"
+        else:
+            print("error: unrecognized phase")
+
+    def reynolds(self,v,L):
+        return self.density*v*L/self.visc
+
     def set_temp(self,newT):
         self.T = newT
     def set_pressure(self,newP):
@@ -74,7 +96,7 @@ class Methane(Material):
         self.P = P
         self.T = T
  
-class Methane(Material):
+class Helium(Material):
     ptable = PropTable("He.csv",5,1300,5,80,500,1)
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
