@@ -31,6 +31,38 @@ class PropTable:
         prop = self.bigtable[:,id]
         return prop[loc][0]
 
+class PropTableTed:
+    '''I had to write this because Ted Bennet sucks'''
+    keys = {'T':0,'k':1,'rho':2,'Cp':3,'Cv':4,'mu':5,'expan':6}
+    def __init__(self,file):
+        f = open(file,'r')
+        lines = f.readlines()
+        bigtable = np.zeros((len(lines)-2,7))
+        floatv = np.vectorize(float)
+        for i in range(2,len(lines)):
+            line = lines[i].lstrip().rstrip('\n')
+            #print(line.split())
+            bigtable[i-2] = floatv(line.split())
+        self.bigtable = bigtable
+    def get(self,T,P,prop):
+        id = self.keys[prop]
+        Ts = self.bigtable[:,0]
+        loc = np.argmin(np.abs(Ts - T))
+        prop0 = self.bigtable[:,id][loc]
+        T0 = self.bigtable[:,0][loc]
+        if T > T0:
+            T1 = self.bigtable[:,0][loc-1]
+            prop1 = self.bigtable[:,id][loc-1]
+            addendum = (T-T0)*((prop1 - prop0)/(T1 - T0))
+            return prop0 + addendum
+        else:
+            T1 = self.bigtable[:,0][loc-1]
+            prop1 = self.bigtable[:,id][loc-1]
+            addendum = (T-T0)*((prop1 - prop0)/(T1 - T0))
+            return prop0 + addendum
+
+
+
 
 class Material:
     def __init__(self,P,T):
@@ -97,4 +129,9 @@ class Helium(Material):
         self.P = P
         self.T = T
 
-    
+class Air(Material):
+    ptable = PropTableTed(os.path.join(DIR,"Air.dat"))
+    def __init__(self,P,T):
+        '''Pressure (psig), Temperature (K)'''
+        self.P = P # unnecessary assumes 1 atm
+        self.T = T
