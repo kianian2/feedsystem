@@ -78,15 +78,15 @@ class Material:
     def get_viscosity(self):
         return self.ptable.get(self.T,self.P,'mu')*self.ptable.conv1
     def get_internal_energy(self):
-        return self.ptable.get(self.T,self.P,'U')/self.ptable.conv2
+        return self.ptable.get(self.T,self.P,'U')*self.ptable.conv2
     def get_enthalpy(self):
-        return self.ptable.get(self.T,self.P,'h')/self.ptable.conv2
+        return self.ptable.get(self.T,self.P,'h')*self.ptable.conv2
     def get_entropy(self):
         return self.ptable.get(self.T,self.P,'h')*self.ptable.conv2
     def get_Cv(self):
-        return self.ptable.get(self.T,self.P,'Cv')*self.ptable.conv2
+        return self.ptable.get(self.T,self.P,'Cv')/self.ptable.conv2
     def get_Cp(self):
-        return self.ptable.get(self.T,self.P,'Cp')*self.ptable.conv2
+        return self.ptable.get(self.T,self.P,'Cp')/self.ptable.conv2
     def get_speed_of_sound(self):
         return self.ptable.get(self.T,self.P,'c')
     def get_thermal_conductivity(self):
