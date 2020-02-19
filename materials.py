@@ -14,6 +14,10 @@ Author: Nolan McCarthy
 Date: 
 """
 
+"""NOTE:
+Prof. Ted Bennett is a moron and fucked up his thermal expansion
+coefficients, so... there's that"""
+
 class PropTable:
     conv1 = 1e-6
     conv2 = 1000
@@ -32,6 +36,19 @@ class PropTable:
             ((self.T>=T)&(self.T<(T+self.Tstep)))
         prop = self.bigtable[:,id]
         return prop[loc][0]
+    def get_derive(self,T,P,prop):
+        T1 = T; T2 = T+ self.Tstep
+        id = self.keys[prop]
+        loc1 = ((self.P>=P)&(self.P<(P+self.Pstep)))&\
+            ((self.T>=T)&(self.T<(T+self.Tstep)))
+        
+        loc2 = ((self.P>=P)&(self.P<(P+self.Pstep)))&\
+            ((self.T>=T2)&(self.T<(T2+self.Tstep)))
+        prop = self.bigtable[:,id]
+        p1 = prop[loc1][0]; p2 = prop[loc2][0]
+        dp = (p2-p1)/(T2-T1)
+        return dp
+
 
 class PropTableTed:
     conv1 = 1
@@ -64,6 +81,7 @@ class PropTableTed:
             prop1 = self.bigtable[:,id][loc-1]
             addendum = (T-T0)*((prop1 - prop0)/(T1 - T0))
             return prop0 + addendum
+
 
 
 
@@ -125,6 +143,10 @@ class Methane(Material):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
         self.T = T
+    def get_expan(self,T,P):
+        drho = self.ptable.get_derive(T,P,'rho')
+        expan = drho/rho
+        return expan
  
 class Helium(Material):
     ptable = PropTable(os.path.join(DIR,"He.csv"),5,1300,5,80,500,1)
@@ -132,10 +154,16 @@ class Helium(Material):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
         self.T = T
-
+    def get_expan(self,T,P):
+        drho = self.ptable.get_derive(T,P,'rho')
+        expan = drho/rho
+        return expan
+    
 class Air(Material):
     ptable = PropTableTed(os.path.join(DIR,"Air.dat"))
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P # unnecessary assumes 1 atm
         self.T = T
+    def get_expan(self):
+        return self.ptable.get(self.T,self.P,'expan')
