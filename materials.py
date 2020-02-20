@@ -140,7 +140,7 @@ class Material:
 
 
 class Oxygen(Material):
-    ptable = PropTable(os.path.join(DIR,"Ox.csv"),10,1000,10,0,1200,1)
+    ptable = PropTable(os.path.join(DIR,"Ox.csv"),5,1000,10,0,1200,1)
     Hv = 3.4 / 16.0 * 1000 * 1000 # kJ/mol / g/mol * g/kg * J/kJ = J/kg
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
