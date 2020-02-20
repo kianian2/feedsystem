@@ -2,7 +2,8 @@
 from math import *
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("C:\\Users\\brand\\Documents\\RPL\\thermo code\\feedsystem")
+from helium_pressurization import compute_He_T_rise
+from materials import Methane
 
 # ----- Conversion Constants -----
 in_to_m = 0.0254
@@ -100,12 +101,12 @@ def timestep_sim(T0,tr,hc,dt,t_end):
     return [0]+time_span, Temp
 
 def get_tank_properties(t_end):
-    dt = 1
+    dt = 0.5
     Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, LOx(), True)
     Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, CH4(), True)
     Tank_ins = Insulation(Tank_LOx, 1, 11.97)
-    t, temp_tank_LOx = timestep_sim(LOx().T0, Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
-    t, temp_tank_CH4 = timestep_sim(CH4().T0, Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
+    t, temp_tank_LOx = timestep_sim(LOx().T0+compute_He_T_rise(LOx), Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
+    t, temp_tank_CH4 = timestep_sim(CH4().T0+compute_He_T_rise(CH4), Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
     return temp_tank_LOx[-1], temp_tank_CH4[-1]
 
 

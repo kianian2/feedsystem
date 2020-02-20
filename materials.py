@@ -160,7 +160,7 @@ class Helium(Material):
         return expan
 
 class Oxygen(Material):
-    ptable = PropTable(os.path.join(DIR,"Ox.csv")10,1000,10,0,1200,1)
+    ptable = PropTable(os.path.join(DIR,"Ox.csv"),10,1000,10,0,1200,1)
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
