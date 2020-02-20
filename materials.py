@@ -46,7 +46,7 @@ class PropTable:
         self.P = self.bigtable[:,1]
         self.T = self.bigtable[:,0]
         self.P1 = P1; self.P2 = P2; self.Pstep = Pstep+1
-        self.T1 = T1; self.T2 = T2; self.Tstep = Tstep+2
+        self.T1 = T1; self.T2 = T2; self.Tstep = Tstep+1
     def get(self,T,P,prop):
         id = self.keys[prop]
         loc = ((self.P>=P)&(self.P<(P+self.Pstep)))&\

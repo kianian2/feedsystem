@@ -8,6 +8,7 @@ Created on Thu Feb 13 20:18:53 2020
 from feed import *
 from thermo import get_tank_properties
 from materials import Oxygen, Methane
+import numpy as np
 
 def get_MR(t_end, pressure_LOx, pressure_CH4):
     TLOx,TCH4 = get_tank_properties(t_end, pressure_LOx, pressure_CH4)
@@ -22,8 +23,18 @@ def get_MR(t_end, pressure_LOx, pressure_CH4):
     MR = mdot_LOX/mdot_CH4
     return MR
 
-print(get_MR(200,538,461))
+ts = np.arange(0,20*60,60)
+MRs = []
+for t in ts:
+    Mr = get_MR(t,538,461)
+    print(Mr)
+    MRs.append(Mr)
 
+import matplotlib.pyplot as plt
+plt.plot(ts/60,MRs)
+plt.ylabel("Mixture Ratio")
+plt.xlabel("time after pressurization (min)")
+plt.show()
 
 # MR = 2.8;               # (Ox:CH4) mixture ratio
 # mdot_tot = 1.22; 
