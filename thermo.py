@@ -3,43 +3,29 @@ from math import *
 import matplotlib.pyplot as plt
 import sys
 from helium_pressurization import compute_He_T_rise
-from materials import Methane
+from materials import Methane, Oxygen, Nitrogen, Air
 
 # ----- Conversion Constants -----
 in_to_m = 0.0254
 
 class Steel:
-    cp =  502.416 #J/kg-K
-    rho = 8030 #kg/m^3 density
+    def get_density(self):
+        return 8030 #kg/m^3 density
+    def get_Cp(self):
+        return 502.416 #J/kg-K
 
 class Styrofoam:
-    k = 0.037 # W/m^2K
-    cp = 1136 #J/kg-K
-    rho = 50 #kg/m^3 density
-    
-class LOx:
-    rho = 1047 # see above     properties at 110K at pressure
-    cp = 1760
-    T0 = 90.2 # boiling temp at 1 atm
-    bp_at_P = 147.33
-    Hv = 3.4 / 16.0 * 1000 * 1000 # kJ/mol / g/mol * g/kg * J/kJ = J/kg
+    def get_density(self):
+        return 50 #kg/m^3 density
+    def get_Cp(self):
+        return 1136 #J/kg-K
+    def get_thermal_conductivity(self):
+        return 0.037 # W/m^2K
 
-class CH4:
-    rho = 397 # kg/m^3     properties at 130K at pressure
-    cp = 3500  # J/kgK
-    T0 = 111.7
-    bp_at_P = 180.2
-    Hv = 8.5 / 16.04 * 1000 * 1000 # kJ/mol / g/mol * g/kg * J/kJ= J/kg
 
-class LN2:
-    rho = 806
-    cp = -1 #unapplicable
-    T0 = 80 # just for starting the unchilling
-    Hv = 6 / 28.01 * 1000 * 1000 # see above
-
-class Air:
-    rho = 1 # literally just guesses
-    cp = 1.2
+LN2_T0 = 77
+LOx_T0 = 90.3 # boiling temp at 1 atm
+CH4_T0 = 111.7
 
 
 class Vessel: # only coding difference between pipes and tanks is whether the ends are capped
@@ -52,9 +38,9 @@ class Vessel: # only coding difference between pipes and tanks is whether the en
         self.r_out = r_out*in_to_m
         self.r_in = self.r_out - self.t
         self.V_fill = pi*self.r_in**2*self.L + self.cap_ends*4/3*pi*self.r_in**3
-        self.hc_fill = self.V_fill * self.mat_fill.rho * self.mat_fill.cp
+        self.hc_fill = self.V_fill * self.mat_fill.get_density() * self.mat_fill.get_Cp()
         self.V_wall = pi*(self.r_out**2 - self.r_in**2)*self.L + self.cap_ends*4/3*pi*(self.r_out**3 - self.r_in**3)
-        self.hc_wall = self.V_wall * self.mat_wall.rho * self.mat_wall.cp
+        self.hc_wall = self.V_wall * self.mat_wall.get_density() * self.mat_wall.cp
         self.hc = self.hc_fill + self.hc_wall
 
 class Insulation:
@@ -68,11 +54,11 @@ class Insulation:
         self.r_out = self.r_in + self.t
         self.A = self.L*2*self.r_out*pi + 4*pi*self.r_out**2 #m^2
         self.V = pi * (self.r_out**2 - self.r_in**2) * self.L + self.cap_ends*4/3*pi*(self.r_out**3 - self.r_in**3)
-        self.hc = self.V * self.mat.rho * self.mat.cp
+        self.hc = self.V * self.mat.get_density() * self.mat.cp
         self.calc_tr()
     def calc_tr(self):
-        tr_cyl = log(self.r_out/self.r_in)/(2*pi*self.L*self.mat.k)
-        tr_sph = (self.r_out-self.r_in)/(4*pi*self.r_out*self.r_in*self.mat.k)
+        tr_cyl = log(self.r_out/self.r_in)/(2*pi*self.L*self.mat.get_thermal_conductivity())
+        tr_sph = (self.r_out-self.r_in)/(4*pi*self.r_out*self.r_in*self.mat.get_thermal_conductivity())
         tr_cond = 1/(1/tr_cyl+self.cap_ends*1/tr_sph)
         tr_conv = 1/self.h/self.A
         self.tr = tr_cond + tr_conv
@@ -100,28 +86,30 @@ def timestep_sim(T0,tr,hc,dt,t_end):
         Temp.append(Temp[-1]+dT)
     return [0]+time_span, Temp
 
-def get_tank_properties(t_end):
+def get_tank_properties(t_end, pressure_LOx, pressure_CH4):
     dt = 0.5
-    Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, LOx(), True)
-    Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, CH4(), True)
+    Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, Oxygen(pressure_LOx, LOx_T0), True)
+    Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, Methane(pressure_CH4, CH4_T0), True)
     Tank_ins = Insulation(Tank_LOx, 1, 11.97)
-    t, temp_tank_LOx = timestep_sim(LOx().T0+compute_He_T_rise(LOx), Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
-    t, temp_tank_CH4 = timestep_sim(CH4().T0+compute_He_T_rise(CH4), Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
+    t, temp_tank_LOx = timestep_sim(LOx_T0 + compute_He_T_rise(Tank_LOx.mat_fill, LOx_T0), Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
+    t, temp_tank_CH4 = timestep_sim(CH4_T0 + compute_He_T_rise(Tank_CH4.mat_fill, CH4_T0), Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
     return temp_tank_LOx[-1], temp_tank_CH4[-1]
 
 
 if __name__ == "__main__":
     dt = 2
     t_end = 2000
-    Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, LOx(), True)
-    Pipe_LOx = Vessel(PIPE_L, PIPE_T, PIPE_R, LOx(), False)
-    Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, CH4(), True)
-    Pipe_CH4 = Vessel(PIPE_L, PIPE_T, PIPE_R, CH4(), False)
-    Tank_LN2 = Vessel(TANK_L, TANK_T, TANK_R, LN2(), True)
-    Pipe_LN2 = Vessel(PIPE_L, PIPE_T, PIPE_R, LN2(), False)
-    Tank_Air = Vessel(TANK_L, TANK_T, TANK_R, Air(), True)
-    Pipe_Air = Vessel(PIPE_L, PIPE_T, PIPE_R, Air(), False)
-    Late_Pipe = Vessel(50, PIPE_T, PIPE_R, Air(), False)
+    LOx_pressure = 550.
+    CH4_pressure = 450.
+    Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, Oxygen(LOx_pressure, LOx_T0), True)
+    Pipe_LOx = Vessel(PIPE_L, PIPE_T, PIPE_R, Oxygen(LOx_pressure, LOx_T0), False)
+    Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, Methane(CH4_pressure, CH4_T0), True)
+    Pipe_CH4 = Vessel(PIPE_L, PIPE_T, PIPE_R, Methane(CH4_pressure, CH4_T0), False)
+    Tank_LN2 = Vessel(TANK_L, TANK_T, TANK_R, Nitrogen(14.7, LN2_T0), True)
+    Pipe_LN2 = Vessel(PIPE_L, PIPE_T, PIPE_R, Nitrogen(14.7, LN2_T0), False)
+    Tank_Air = Vessel(TANK_L, TANK_T, TANK_R, Air(14.7, LN2_T0), True)
+    Pipe_Air = Vessel(PIPE_L, PIPE_T, PIPE_R, Air(14.7, LN2_T0), False)
+    Late_Pipe = Vessel(50, PIPE_T, PIPE_R, Air(14.7, env_temp), False)
 
     Tank_ins = Insulation(Tank_LOx, 1, 11.97)
     Pipe_ins = Insulation(Pipe_LOx, 1, 25)
@@ -142,13 +130,13 @@ if __name__ == "__main__":
     plt.plot(t, temp_tank_Air, 'k-')
     plt.plot(t, temp_pipe_Air, 'k-')
 
-    print("Open LN2 boil rate in tank = ", ((env_temp - LN2().T0) / Tank_ins.tr)/(LN2().Hv) * 3600, "kg/hr")
-    print("Open LOx boil rate in tank = ", ((env_temp - LOx().T0) / Tank_ins.tr)/(LOx().Hv) * 3600, "kg/hr")
-    print("Open CH4 boil rate in tank = ", ((env_temp - CH4().T0) / Tank_ins.tr)/(CH4().Hv) * 3600, "kg/hr")
-    print("Open LN2 boil rate in pipe = ", ((env_temp - LN2().T0) / Pipe_ins.tr)/(LN2().Hv) * 3600, "kg/hr")
-    print("Open LOx boil rate in pipe = ", ((env_temp - LOx().T0) / Pipe_ins.tr)/(LOx().Hv) * 3600, "kg/hr")
-    print("Open CH4 boil rate in pipe = ", ((env_temp - CH4().T0) / Pipe_ins.tr)/(CH4().Hv) * 3600, "kg/hr")
-    print("Max CH4 boiloff in line = ", (env_temp - CH4.T0)*(Late_Pipe.hc+Late_ins.hc) / CH4.Hv, "kg")
+    print("Open LN2 boil rate in tank = ", ((env_temp - LN2_T0) / Tank_ins.tr)/(Nitrogen.Hv) * 3600, "kg/hr")
+    print("Open LOx boil rate in tank = ", ((env_temp - LOx_T0) / Tank_ins.tr)/(Oxygen.Hv) * 3600, "kg/hr")
+    print("Open CH4 boil rate in tank = ", ((env_temp - CH4_T0) / Tank_ins.tr)/(Methane.Hv) * 3600, "kg/hr")
+    print("Open LN2 boil rate in pipe = ", ((env_temp - LN2_T0) / Pipe_ins.tr)/(Nitrogen.Hv) * 3600, "kg/hr")
+    print("Open LOx boil rate in pipe = ", ((env_temp - LOx_T0) / Pipe_ins.tr)/(Oxygen.Hv) * 3600, "kg/hr")
+    print("Open CH4 boil rate in pipe = ", ((env_temp - CH4_T0) / Pipe_ins.tr)/(Methane.Hv) * 3600, "kg/hr")
+    print("Max CH4 boiloff in line = ", (env_temp - CH4_T0)*(Late_Pipe.hc+Late_ins.hc) / Methane.Hv, "kg")
 
     plt.legend(["Tank LOx", "Tank CH4", "Pipe LOx", "Pipe CH4", "Tank Air", "Pipe Air"])
     plt.show()
