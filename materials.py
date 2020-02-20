@@ -25,15 +25,17 @@ class PropTable:
     'h':5,'s':6,'Cv':7,'Cp':8,'c':9,'JT':10,'mu':11,'k':12,
     'phase':13,'den':2}
     def __init__(self,f,P1,P2,Pstep,T1,T2,Tstep):
+        self.epsilon = -0.1
         self.bigtable = np.genfromtxt(f)
         self.P = self.bigtable[:,1]
         self.T = self.bigtable[:,0]
-        self.P1 = P1; self.P2 = P2; self.Pstep = Pstep
-        self.T1 = T1; self.T2 = T2; self.Tstep = Tstep
+        self.P1 = P1; self.P2 = P2; self.Pstep = Pstep+1
+        self.T1 = T1; self.T2 = T2; self.Tstep = Tstep+1
     def get(self,T,P,prop):
         id = self.keys[prop]
         loc = ((self.P>=P)&(self.P<(P+self.Pstep)))&\
             ((self.T>=T)&(self.T<(T+self.Tstep)))
+        print(True in loc)
         prop = self.bigtable[:,id]
         return prop[loc][0]
     def get_derive(self,T,P,prop):
@@ -44,6 +46,7 @@ class PropTable:
         
         loc2 = ((self.P>=P)&(self.P<(P+self.Pstep)))&\
             ((self.T>=T2)&(self.T<(T2+self.Tstep)))
+
         prop = self.bigtable[:,id]
         p1 = prop[loc1][0]; p2 = prop[loc2][0]
         dp = (p2-p1)/(T2-T1)
