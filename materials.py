@@ -183,6 +183,7 @@ class Air(Material):
 
 class Nitrogen(Material):
     ptable = PropTable(os.path.join(DIR,"N2.csv"),10,1000,10,0,1200,1)
+    Hv = 6 / 28.01 * 1000 * 1000 # see above
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
