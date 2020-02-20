@@ -1,12 +1,10 @@
 
 from math import *
 import matplotlib.pyplot as plt
+from conversions import *
 import sys
 from helium_pressurization import compute_He_T_rise
 from materials import Methane, Oxygen, Nitrogen, Air
-
-# ----- Conversion Constants -----
-in_to_m = 0.0254
 
 class Steel:
     def get_density(self):
@@ -33,14 +31,14 @@ class Vessel: # only coding difference between pipes and tanks is whether the en
         self.mat_fill = mat_fill
         self.cap_ends = cap_ends
         self.mat_wall = Steel()
-        self.L = L*in_to_m
-        self.t = t*in_to_m
-        self.r_out = r_out*in_to_m
+        self.L = L*in2m
+        self.t = t*in2m
+        self.r_out = r_out*in2m
         self.r_in = self.r_out - self.t
         self.V_fill = pi*self.r_in**2*self.L + self.cap_ends*4/3*pi*self.r_in**3
         self.hc_fill = self.V_fill * self.mat_fill.get_density() * self.mat_fill.get_Cp()
         self.V_wall = pi*(self.r_out**2 - self.r_in**2)*self.L + self.cap_ends*4/3*pi*(self.r_out**3 - self.r_in**3)
-        self.hc_wall = self.V_wall * self.mat_wall.get_density() * self.mat_wall.cp
+        self.hc_wall = self.V_wall * self.mat_wall.get_density() * self.mat_wall.get_Cp()
         self.hc = self.hc_fill + self.hc_wall
 
 class Insulation:
@@ -50,11 +48,11 @@ class Insulation:
         self.h = h
         self.L = vessel.L
         self.r_in = vessel.r_out
-        self.t = thickness*in_to_m
+        self.t = thickness*in2m
         self.r_out = self.r_in + self.t
         self.A = self.L*2*self.r_out*pi + 4*pi*self.r_out**2 #m^2
         self.V = pi * (self.r_out**2 - self.r_in**2) * self.L + self.cap_ends*4/3*pi*(self.r_out**3 - self.r_in**3)
-        self.hc = self.V * self.mat.get_density() * self.mat.cp
+        self.hc = self.V * self.mat.get_density() * self.mat.get_Cp()
         self.calc_tr()
     def calc_tr(self):
         tr_cyl = log(self.r_out/self.r_in)/(2*pi*self.L*self.mat.get_thermal_conductivity())
@@ -99,28 +97,28 @@ def get_tank_properties(t_end, pressure_LOx, pressure_CH4):
 if __name__ == "__main__":
     dt = 2
     t_end = 2000
-    LOx_pressure = 550.
-    CH4_pressure = 450.
+    LOx_pressure = 538.
+    CH4_pressure = 461.
     Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, Oxygen(LOx_pressure, LOx_T0), True)
     Pipe_LOx = Vessel(PIPE_L, PIPE_T, PIPE_R, Oxygen(LOx_pressure, LOx_T0), False)
     Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, Methane(CH4_pressure, CH4_T0), True)
     Pipe_CH4 = Vessel(PIPE_L, PIPE_T, PIPE_R, Methane(CH4_pressure, CH4_T0), False)
     Tank_LN2 = Vessel(TANK_L, TANK_T, TANK_R, Nitrogen(14.7, LN2_T0), True)
     Pipe_LN2 = Vessel(PIPE_L, PIPE_T, PIPE_R, Nitrogen(14.7, LN2_T0), False)
-    Tank_Air = Vessel(TANK_L, TANK_T, TANK_R, Air(14.7, LN2_T0), True)
-    Pipe_Air = Vessel(PIPE_L, PIPE_T, PIPE_R, Air(14.7, LN2_T0), False)
-    Late_Pipe = Vessel(50, PIPE_T, PIPE_R, Air(14.7, env_temp), False)
+    Tank_Air = Vessel(TANK_L, TANK_T, TANK_R, Nitrogen(14.7, LN2_T0+1), True)
+    Pipe_Air = Vessel(PIPE_L, PIPE_T, PIPE_R, Nitrogen(14.7, LN2_T0+1), False)
+    Late_Pipe = Vessel(50, PIPE_T, PIPE_R, Nitrogen(14.7, env_temp+1), False)
 
     Tank_ins = Insulation(Tank_LOx, 1, 11.97)
     Pipe_ins = Insulation(Pipe_LOx, 1, 25)
     Late_ins = Insulation(Late_Pipe, 1, 25)
 
-    t, temp_tank_LOx = timestep_sim(LOx().T0, Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
-    t, temp_pipe_LOx = timestep_sim(LOx().T0, Pipe_ins.tr, Pipe_ins.hc + Pipe_LOx.hc, dt, t_end)
-    t, temp_tank_CH4 = timestep_sim(CH4().T0, Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
-    t, temp_pipe_CH4 = timestep_sim(CH4().T0, Pipe_ins.tr, Pipe_ins.hc + Pipe_CH4.hc, dt, t_end)
-    t, temp_tank_Air = timestep_sim(LN2().T0, Tank_ins.tr, Tank_ins.hc + Tank_Air.hc, dt, t_end)
-    t, temp_pipe_Air = timestep_sim(LN2().T0, Pipe_ins.tr, Pipe_ins.hc + Pipe_Air.hc, dt, t_end)
+    t, temp_tank_LOx = timestep_sim(LOx_T0, Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
+    t, temp_pipe_LOx = timestep_sim(LOx_T0, Pipe_ins.tr, Pipe_ins.hc + Pipe_LOx.hc, dt, t_end)
+    t, temp_tank_CH4 = timestep_sim(CH4_T0, Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
+    t, temp_pipe_CH4 = timestep_sim(CH4_T0, Pipe_ins.tr, Pipe_ins.hc + Pipe_CH4.hc, dt, t_end)
+    t, temp_tank_Air = timestep_sim(LN2_T0, Tank_ins.tr, Tank_ins.hc + Tank_Air.hc, dt, t_end)
+    t, temp_pipe_Air = timestep_sim(LN2_T0, Pipe_ins.tr, Pipe_ins.hc + Pipe_Air.hc, dt, t_end)
 
     plt.figure(figsize=(6,4), dpi=400)
     plt.plot(t, temp_tank_LOx, 'b-')
