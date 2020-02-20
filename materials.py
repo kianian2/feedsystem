@@ -23,7 +23,7 @@ class PropTable:
     conv2 = 1000
     keys = {'T':0,'P':1,'rho':2,'specvol':3,'U':4,
     'h':5,'s':6,'Cv':7,'Cp':8,'c':9,'JT':10,'mu':11,'k':12,
-    'phase':13}
+    'phase':13,'den':2}
     def __init__(self,f,P1,P2,Pstep,T1,T2,Tstep):
         self.bigtable = np.genfromtxt(f)
         self.P = self.bigtable[:,1]
@@ -54,7 +54,7 @@ class PropTableTed:
     conv1 = 1
     conv2 = 2
     '''I had to write this because Ted Bennet sucks'''
-    keys = {'T':0,'k':1,'rho':2,'Cp':3,'Cv':4,'mu':5,'expan':6}
+    keys = {'T':0,'k':1,'rho':2,'Cp':3,'Cv':4,'mu':5,'expan':6,'den':2}
     def __init__(self,file):
         f = open(file,'r')
         lines = f.readlines()
