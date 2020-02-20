@@ -137,8 +137,21 @@ class Material:
         self.P = newP
 
 
+class Oxygen(Material):
+    ptable = PropTable(os.path.join(DIR,"Ox.csv"),10,1000,10,0,1200,1)
+    Hv = 3.4 / 16.0 * 1000 * 1000 # kJ/mol / g/mol * g/kg * J/kJ = J/kg
+    def __init__(self,P,T):
+        '''Pressure (psig), Temperature (K)'''
+        self.P = P
+        self.T = T
+    def get_expan(self,T,P):
+        drho = self.ptable.get_derive(T,P,'rho')
+        expan = drho/rho
+        return expan
+
 class Methane(Material):
     ptable = PropTable(os.path.join(DIR,"ch4.csv"),10,750,10,0,400,1)
+    Hv = 8.5 / 16.04 * 1000 * 1000 # kJ/mol / g/mol * g/kg * J/kJ= J/kg
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
@@ -150,17 +163,6 @@ class Methane(Material):
  
 class Helium(Material):
     ptable = PropTable(os.path.join(DIR,"He.csv"),5,1300,5,80,500,1)
-    def __init__(self,P,T):
-        '''Pressure (psig), Temperature (K)'''
-        self.P = P
-        self.T = T
-    def get_expan(self,T,P):
-        drho = self.ptable.get_derive(T,P,'rho')
-        expan = drho/rho
-        return expan
-
-class Oxygen(Material):
-    ptable = PropTable(os.path.join(DIR,"Ox.csv"),10,1000,10,0,1200,1)
     def __init__(self,P,T):
         '''Pressure (psig), Temperature (K)'''
         self.P = P
