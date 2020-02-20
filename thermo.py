@@ -5,6 +5,7 @@ from conversions import *
 import sys
 from helium_pressurization import compute_He_T_rise
 from materials import Methane, Oxygen, Nitrogen, Air
+import numpy as np
 
 class Steel:
     def get_density(self):
@@ -76,7 +77,7 @@ env_temp = 310 # aronud 100 F, but in K
 
 # ----- Temp Changes -----
 def timestep_sim(T0,tr,hc,dt,t_end):
-    time_span = list(range(dt,t_end,dt))
+    time_span = list(np.arange(dt,t_end,dt))
     Temp = [T0]
     for t in time_span:
         Q = (env_temp - Temp[-1]) / tr
