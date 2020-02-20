@@ -89,9 +89,20 @@ def get_tank_properties(t_end, pressure_LOx, pressure_CH4):
     dt = 0.5
     Tank_LOx = Vessel(TANK_L, TANK_T, TANK_R, Oxygen(pressure_LOx, LOx_T0), True)
     Tank_CH4 = Vessel(TANK_L, TANK_T, TANK_R, Methane(pressure_CH4, CH4_T0), True)
+    Pipe_LOx = Vessel(PIPE_L, PIPE_T, PIPE_R, Oxygen(pressure_LOx, LOx_T0), False)
+    Pipe_CH4 = Vessel(PIPE_L, PIPE_T, PIPE_R, Methane(pressure_CH4, CH4_T0), False)
+
     Tank_ins = Insulation(Tank_LOx, 1, 11.97)
-    t, temp_tank_LOx = timestep_sim(LOx_T0 + compute_He_T_rise(Tank_LOx.mat_fill, LOx_T0), Tank_ins.tr, Tank_ins.hc + Tank_LOx.hc, dt, t_end)
-    t, temp_tank_CH4 = timestep_sim(CH4_T0 + compute_He_T_rise(Tank_CH4.mat_fill, CH4_T0), Tank_ins.tr, Tank_ins.hc + Tank_CH4.hc, dt, t_end)
+    Pipe_ins = Insulation(Pipe_LOx, 1, 25)
+
+    t, temp_tank_LOx = timestep_sim(LOx_T0 + compute_He_T_rise(Tank_LOx.mat_fill, LOx_T0),
+                                    1/(1/Tank_ins.tr+1/Pipe_ins.tr),
+                                    Tank_ins.hc + Tank_LOx.hc + Pipe_LOx.hc + Pipe_ins.hc,
+                                    dt, t_end)
+    t, temp_tank_CH4 = timestep_sim(CH4_T0 + compute_He_T_rise(Tank_CH4.mat_fill, CH4_T0),
+                                    1/(1/Tank_ins.tr+1/Pipe_ins.tr),
+                                    Tank_ins.hc + Tank_CH4.hc + Pipe_CH4.hc + Pipe_ins.hc,
+                                    dt, t_end)
     return temp_tank_LOx[-1], temp_tank_CH4[-1]
 
 
