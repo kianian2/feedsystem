@@ -141,7 +141,7 @@ A_Tube = pi/4*(D_Tube**2);      # Tube area [m2]
 Q_He_Ox = Q_LOx;                 # Volumetric flow of Helium in tank [m3/s]
 v_He_Ox = Q_He_Ox/A_t;          # Helium plane velocity [m/s]
 
-P_0 = 1314.7*psi2pa;            # Helium Pressure in Tank [Pa]
+P_0 = 2214.7*psi2pa;            # Helium Pressure in Tank [Pa]
 T_0 = 310;                      # Helium Temperature in tank at desert [K]
 
 P_T_LOx = PT_LOx*psi2pa;          # Required Prop Tank Pressure [Pa]
@@ -149,19 +149,40 @@ P_T_LOx = PT_LOx*psi2pa;          # Required Prop Tank Pressure [Pa]
 p_He_Tank = P_0/R_He/T_0/Z_0;   # Density of Helium leaving tank [kg/m3]
 
 N2 = 22.67;     # numerical constant (std ft3/min, psia,R)
-p1 = 1314.7;    # absolute pressure
-p11 = 564.7;    
-p2  = 465+14.7;
-dp = p11-p2;
+p1 = 2214.7;    # absolute pressure
+pox = 554.7;    
+pch4  = 460+14.7;
+dp_ox = p1-pox;
+dp_ch4 = p1 - pch4;
 Gg = .138;      # gas specific gravity
 T_R = 558;      # inlet temp Rankine
 T_Std = 273.15; # standard temp [K]
 P_Std = 101325; # standard pressure [Pa]
-actual_ft = Q_He_Ox*m3s2ft3min;             # flow rate req in ft3/min
-q_ft = actual_ft*(P_0/P_Std)*(T_Std/T_0); 	# flow rate in std ft3/min
 
-Cv_sonic = (q_ft/(0.471*N2*p1))*sqrt(Gg*T_R);
+# oxygen side
+Q_He_Ox = 0.7898/1000;
+actual_ft_ox = Q_He_Ox*m3s2ft3min;             # flow rate req in ft3/min
+q_ft_ox = actual_ft_ox*(pox*psi2pa/P_Std)*(T_Std/T_0); 	# flow rate in std ft3/min
+Cv_sonic_ox = (q_ft_ox/(0.471*N2*p1))*sqrt(Gg*T_R);  # cv at sonic flow
+nitrogen_scfm_ox = q_ft_ox/2.65;
 
-q_act_ch4 = Q_CH4*m3s2ft3min;
-q_ft_ch4 = q_act_ch4*(p11*psi2pa/P_Std)*(T_Std/T_0);
-Cv_sub = (q_ft_ch4/(N2*p11*(1-(2*dp/(3*p11)))))*sqrt(Gg*p11*T_R/dp);
+# methane side
+Q_CH4 = 0.75906/1000;
+q_act_ch4 = Q_CH4*m3s2ft3min;       # actual flow rate
+q_ft_ch4 = q_act_ch4*(pch4*psi2pa/P_Std)*(T_Std/T_0);   # flow rate in scfm
+Cv_sonic_ch4 = (q_ft_ch4/(0.471*N2*p1))*sqrt(Gg*T_R);# cv at sonic flow
+nitrogen_scfm_ch4 = q_ft_ch4/2.65;
+
+print(' ') 
+print('Helium LOX SIDE paramters')
+print('flow rate of helium',float(actual_ft_ox),'ft3/min')
+print('flow rate of helium in SCFM',float(q_ft_ox),'ft3/min')
+print('Cv at choked flow',float(Cv_sonic_ox))
+print('equivalent flow rate of nitrogen in SCFM',float(nitrogen_scfm_ox),'ft3/min')
+
+print(' ') 
+print('Helium CH4 SIDE paramters')
+print('flow rate of helium',float(q_act_ch4),'ft3/min')
+print('flow rate of helium in SCFM',float(q_ft_ch4),'ft3/min')
+print('Cv at choked flow',float(Cv_sonic_ch4))
+print('equivalent flow rate of nitrogen in SCFM',float(nitrogen_scfm_ch4),'ft3/min')
