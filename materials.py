@@ -210,3 +210,14 @@ class Nitrogen(Material):
         drho = self.ptable.get_derive(T,P,'rho')
         expan = drho/rho
         return expan
+
+class Water(Material):
+    ptable = PropTable(os.path.join(DIR,"H2O.csv"),10,100,10,100,300,10)
+    def __init__(self,P,T):
+        '''Pressure (psig), Temperature (K)'''
+        self.P = P
+        self.T = T
+    def get_expan(self,T,P):
+        drho = self.ptable.get_derive(T,P,'rho')
+        expan = drho/rho
+        return expan
