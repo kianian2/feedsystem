@@ -35,33 +35,49 @@ Ti =  310.928       ;  # [K] Ambient room temperature
 Tf =  111.7         ;  # [K] Methane Cryogenic temperature, this is once pressurant reaches thermal equilibrium 
 T = Ti              ;  # [K] Setting up the initial temperature of our pressurant, it is at ambient temperature (assumption) 
 t = 0               ;  # [s] Setting up euler time step problem
-dt = 0.0002            ;  # [s] Setting up time step 
+dt = 0.02            ;  # [s] Setting up time step 
 R  = 0.08205        ;  # [L atm/mol k]
 moles = P_eul*v_eul/(R*T)         ;  # [mol] Initial moles in the tank of pressurant 
 lamb = 1.6667; 
 
 p_eul_array = []
 p_f_array = []
+moles_array = [] 
 
 def T_gas(P_f,P_i): 
     return (P_f/P_i)*T*((P_f/P_i-1)/lamb + 1)**(-1)
 
+def converging_temp_pressure(moles,T,P_eul): 
+    for x in range(30): 
+        new_press = (moles*R*T/v_eul)/psi_to_atm
+        #T = (T * moles + T_gas(new_press, P_eul) * mdot * dt)/moles
+        T = T_gas(new_press, P_eul)
+        P_eul = new_press 
+        
+    return T, new_press
+
 while P_diff > 1:
+    p_eul_array.append(P_eul)
+    p_f_array.append(T)
+    moles_array.append(moles)
     #helium_density_eul = Helium(P_eul,T).get_density()
     mdot = func(P_diff,cv)*gallons_to_liters*helium_density_eul*grams_to_moles/60 # [mol/s] Based on the curve fit as a function of pressure difference from the company 
     moles = moles + mdot * dt
-    new_press = (moles*R*T/v_eul)/psi_to_atm
-    #T = (T * moles + T_gas(new_press, P_eul) * mdot * dt)/moles [K] #Temperature averaging
-    T = T_gas(new_press, P_eul)
-    P_eul = new_press                                                   # [mol/s] This updates our moles inside the eulage volume and prepares for pv=nrt                                          
+    #new_press = (moles*R*T/v_eul)/psi_to_atm
+    #T = (T * moles + T_gas(new_press, P_eul) * mdot * dt)/moles #[K] Temperature averaging
+    #T = T_gas(new_press, P_eul)
+    #P_eul = new_press          
+    temp_pressure_var = converging_temp_pressure(moles,T,P_eul)                                         # [mol/s] This updates our moles inside the eulage volume and prepares for pv=nrt                                          
+    T = temp_pressure_var[0]
+    P_eul = temp_pressure_var[1]
     P_diff =  P_reg - P_eul                                                   # [psi] Preparation to update mdot                                                      # [k] Use the function inside of the BETE pdf to update the temperature inside the tank as a function of the eulage pressure
     t = t + dt                                                                # [s] updating the time step 
-    p_eul_array.append(P_eul)
-    p_f_array.append(T)
+    
 
 fig, ax  = plt.subplots()
 plt.plot(np.arange(0,dt * len(p_eul_array), dt),p_eul_array)
 plt.plot(np.arange(0,dt * len(p_eul_array), dt),p_f_array)
-ax.legend(["Eulage Press (psi)", "Temp"])
+plt.plot(np.arange(0,dt*len(p_eul_array),dt),moles_array)
+ax.legend(["Eulage Press (psi)", "Temp", "Moles"])
 print(t) 
 plt.show()
