@@ -4,7 +4,7 @@ function calcResistFlowBoiloff()
     ambTemp = input("What is the ambient temperature (in K)? ")
     liq = input("What is the liquid inside the tank? ", 's')
 
-    disp("Total Resistance")
+    disp("Total Resistance (wow) ! :")
     totalResistance = total_resistance(thickn, ambTemp, liq)
 
     %ct = cryo temp / innter tem
